@@ -1,5 +1,5 @@
 # Etapa de construcción
-FROM node:18-alpine as builder
+FROM node:latest as builder
 
 WORKDIR /app
 
@@ -10,9 +10,10 @@ RUN npm install
 # Copiar el resto del código
 COPY e-commerce/ .
 
+RUN npm run build
 
 # Etapa de producción
-FROM node:18-alpine
+FROM node:latest
 
 WORKDIR /app
 COPY --from=builder /app /app
