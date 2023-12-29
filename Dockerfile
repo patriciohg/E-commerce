@@ -1,27 +1,25 @@
 # Etapa de construcción
-FROM node:19-alpine as builder
+FROM node:18-alpine as builder
 
 WORKDIR /app
 
+# Copiar archivos de paquete e instalar dependencias
 COPY ecommerce/package*.json ./
-
 RUN npm install
+
+# Copiar el resto del código
 COPY ecommerce/ .
-COPY ecommerce/public/ /ecommerce/public/
 
+# Construir la aplicación
 RUN npm run build
-RUN npm run export
 
-# Etapa de producción con NGINX
-FROM nginx:alpine
+# Etapa de producción
+FROM node:18-alpine
 
-# Copiar la versión estática generada a la ruta de contenido de NGINX
-COPY --from=builder /app/out /usr/share/nginx/html
-RUN apk add vim
-ENV TZ=America/Santiago
-COPY nginx.conf.template /etc/nginx/templates/
-RUN rm -rf /usr/share/nginx/html/*
-COPY --from=builder /app/out /usr/share/nginx/html
-EXPOSE 80
+WORKDIR /app
+COPY --from=builder /app /app
 
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 4001
+
+# Iniciar la aplicación Next.js
+CMD ["npm", "run", "start"]
