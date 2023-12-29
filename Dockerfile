@@ -1,17 +1,27 @@
-FROM node:19-alpine
+# Etapa de construcción
+FROM node:19-alpine as builder
 
 WORKDIR /app
 
 COPY ecommerce/package*.json ./
 
-RUN npm ci
-
+RUN npm install
 COPY ecommerce/ .
+COPY ecommerce/public/ /ecommerce/public/
 
 RUN npm run build
+RUN npm run export
 
-RUN npm install -g next
+# Etapa de producción con NGINX
+FROM nginx:alpine
 
-EXPOSE 4001
+# Copiar la versión estática generada a la ruta de contenido de NGINX
+COPY --from=builder /app/out /usr/share/nginx/html
+RUN apk add vim
+ENV TZ=America/Santiago
+COPY nginx.conf.template /etc/nginx/templates/
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/out /usr/share/nginx/html
+EXPOSE 80
 
-CMD ["next", "start", "-p", "4001"]
+CMD ["nginx", "-g", "daemon off;"]
