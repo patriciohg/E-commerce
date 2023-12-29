@@ -1,3 +1,4 @@
+import Navbar from '@components/components/ui/Navbar'
 import React from 'react'
 
 
@@ -8,7 +9,7 @@ function DashboardLayout({
   }) {
   return (
     <>
-
+        <Navbar/>
         {children}
     </>
   )

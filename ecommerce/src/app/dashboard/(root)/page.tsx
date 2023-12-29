@@ -11,7 +11,6 @@ function Page() {
 
   return (
     <div>
-        <UserButton afterSignOutUrl="/"/>
         Hola  mundo
     </div>
   )
